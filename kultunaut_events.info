@@ -1,0 +1,9 @@
+name = Kultunaut events
+description = Events from kultunaut.dk
+core = 7.x
+package = Easyting Extra
+version = 7.x-1.0
+project = kultunaut_events
+
+dependencies[] = ding_nodelist
+files[] = kultunaut_events.class.inc
