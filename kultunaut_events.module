@@ -1,0 +1,188 @@
+<?php
+/**
+ * @file
+ * Kultunaut events module.
+ */
+
+/**
+ * Default URL to XML.
+ */
+define(
+  'KULTUNAUT_EVENTS_DEFAULT_URL',
+  'http://www.kultunaut.dk/perl/export/taarnbyxml?version=bibslideshow'
+);
+
+/**
+ * Implements hook_menu().
+ */
+function kultunaut_events_menu() {
+  $items = array();
+
+  $items['admin/config/kultunaut_events'] = array(
+    'title' => 'Kultunaut events',
+    'description' => 'Kultunaut events settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('kultunaut_events_settings_form'),
+    'access arguments' => array('administer kultunaut_events settings'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'kultunaut_events.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function kultunaut_events_permission() {
+  return array(
+    'administer kultunaut_events settings' => array(
+      'title' => t('Administer kultunaut_events settings'),
+      'description' => t('Configure settings for kultunaut_events module'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function kultunaut_events_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function kultunaut_events_theme() {
+  $theme = array(
+    'kultunaut_events.event.carousel' => array(
+      'variables' => array(
+        'item' => NULL,
+        'conf' => NULL,
+      ),
+      'template' => 'templates/kultunaut_events.event.carousel',
+    ),
+  );
+
+  return $theme;
+}
+
+/**
+ * Load data from kultunaut.dk.
+ *
+ * @param int $limit
+ *   Maximum number of items to get.
+ *
+ * @return array
+ *   Array of stdClass that emulates nodes.
+ */
+function kultunaut_events_load($limit) {
+  $return = array();
+  // Fetch XML.
+  $data = file_get_contents(
+    variable_get('kultunaut_events_url', KULTUNAUT_EVENTS_DEFAULT_URL)
+  );
+  // Check if it is XML.
+  // @todo Compare with a proper XML MIME type.
+  $headers = implode("\r\n", $http_response_header);
+  if (strpos($headers, 'xml') === FALSE) {
+    watchdog(
+      'kultunaut_events',
+      'Failed to fetch XML: %error',
+      array('%error' => $data),
+      WATCHDOG_ERROR
+    );
+    return $return;
+  }
+  $xml = simplexml_load_string($data);
+
+  if (empty($xml->arrlist->arr)) {
+    return $return;
+  }
+  foreach ($xml->arrlist->arr as $item) {
+    $node = new KultunautEvent();
+    $node->setImageDownloadHandler('kultunaut_events_fetch_image');
+    $node->fromSimpleXMLElement($item);
+    $return[] = $node;
+    $limit--;
+    if ($limit == 0) {
+      break;
+    }
+  }
+
+  return $return;
+}
+
+/**
+ * Implements hook_artesis_frontend_ipe_menu_alter().
+ *
+ * See artesis_frontend.module _artesis_frontend_get_allowed_plugins().
+ */
+function kultunaut_events_artesis_frontend_ipe_menu_alter(&$menu) {
+  $menu['kultunaut_events'] = 'kultunaut_events';
+}
+
+/**
+ * Return the path to the image.
+ *
+ * @param string $url
+ *   URL to original image.
+ *
+ * @return string
+ *   File path to image.
+ */
+function kultunaut_events_image_path($url) {
+  return file_default_scheme() . '://kultunaut_events/' . md5($url) . '.jpg';
+}
+
+/**
+ * Download original image.
+ *
+ * @param string $url
+ *   URL to original image.
+ *
+ * @return bool|string
+ *   Path to saved image or FALSE on error.
+ *
+ * @see file_unmanaged_save_data()
+ */
+function kultunaut_events_fetch_image($url) {
+  $image = kultunaut_events_image_path($url);
+
+  // Do not download the image again if it exists.
+  if (file_exists($image)) {
+    return $image;
+  }
+
+  // Get the folder for the final location of image.
+  $directory = dirname($image);
+
+  // Build the destination folder tree if it doesn't already exist.
+  if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+    watchdog(
+      'kultunaut_events',
+      'Failed to create image directory: %directory',
+      array('%directory' => $directory),
+      WATCHDOG_ERROR
+    );
+    return FALSE;
+  }
+
+  // Download image.
+  $result = drupal_http_request($url);
+  watchdog(
+    'kultunaut_events',
+    'Downloading image %image into %file',
+    array('%image' => $url, '%file' => $image),
+    WATCHDOG_DEBUG
+  );
+
+  // Return false if HTTP request failed.
+  if ($result->code != 200) {
+    return FALSE;
+  }
+
+  return file_unmanaged_save_data($result->data, $image, FILE_EXISTS_REPLACE);
+}
