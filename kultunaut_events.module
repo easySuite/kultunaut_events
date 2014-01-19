@@ -80,9 +80,22 @@ function kultunaut_events_theme() {
  */
 function kultunaut_events_load($limit) {
   $return = array();
+  // Fetch XML.
   $data = file_get_contents(
     variable_get('kultunaut_events_url', KULTUNAUT_EVENTS_DEFAULT_URL)
   );
+  // Check if it is XML.
+  // @todo Compare with a proper XML MIME type.
+  $headers = implode("\r\n", $http_response_header);
+  if (strpos($headers, 'xml') === FALSE) {
+    watchdog(
+      'kultunaut_events',
+      'Failed to fetch XML: %error',
+      array('%error' => $data),
+      WATCHDOG_ERROR
+    );
+    return $return;
+  }
   $xml = simplexml_load_string($data);
 
   if (empty($xml->arrlist->arr)) {
