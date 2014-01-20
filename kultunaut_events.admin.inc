@@ -11,7 +11,7 @@ function kultunaut_events_settings_form() {
   $form = array();
 
   $form['kultunaut_events_url'] = array(
-    '#type' => 'text',
+    '#type' => 'textfield',
     '#title' => t('URL to events XML'),
     '#default_value' => variable_get(
       'kultunaut_events_url',
