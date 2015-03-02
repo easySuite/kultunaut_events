@@ -9,14 +9,14 @@
  */
 $plugin = array(
   'title' => t('Kultunaut events'),
-  'category' => t('Easyting Extra'),
+  'category' => t('easyDDB Extra'),
   'description' => t('Show events from kultunaut.dk site'),
   'single' => TRUE,
   'content_types' => 'kultunaut_events_content_type',
   'render callback' => 'kultunaut_events_content_type_render',
   'admin title' => 'Kultunaut events',
   'admin info' => 'kultunaut_events_content_type_admin_info',
-  'edit form' => 'kultunaut_events_content_type_edit_form',
+  'edit form' => 'kultunaut_events_content_type_edit_form'
 );
 
 /**
@@ -30,9 +30,7 @@ function kultunaut_events_content_type_edit_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Delay (miliseconds)'),
     '#default_value' => !empty($conf['autoscroll_delay']) ? $conf['autoscroll_delay'] : 3000,
-    '#description' => t(
-      'Time in milliseconds an item will be shown before switching to the next one'
-    ),
+    '#description' => t('Time in milliseconds an item will be shown before switching to the next one'),
     '#size' => 4,
   );
 
@@ -55,11 +53,7 @@ function kultunaut_events_content_type_edit_form($form, &$form_state) {
     'granularity' => 'context',
   );
   $settings = !empty($pane->cache['settings']) ? $pane->cache['settings'] : $default_cache_settings;
-  $cache_form = panels_simple_cache_settings_form(
-    $settings,
-    $form_state['display'],
-    $pane->pid
-  );
+  $cache_form = panels_simple_cache_settings_form($settings, $form_state['display'], $pane->pid);
   unset($cache_form['granularity']);
 
   $form['cache_settings'] = $cache_form;
@@ -93,13 +87,7 @@ function kultunaut_events_content_type_edit_form_submit($form, &$form_state) {
   ctools_include('plugins');
   $simple_cache_plugin = ctools_plugin_get_info('panels', 'cache');
   ctools_plugin_load_includes($simple_cache_plugin);
-  $cid = panels_simple_cache_get_id(
-    $pane_cache['settings'],
-    $form_state['display'],
-    array(),
-    $form_state['contexts'],
-    $form_state['pane']
-  );
+  $cid = panels_simple_cache_get_id($pane_cache['settings'], $form_state['display'], array(), $form_state['contexts'], $form_state['pane']);
   cache_clear_all($cid, 'cache');
 }
 
@@ -149,20 +137,19 @@ function kultunaut_events_content_type_render($subtype, $conf, $args, $context) 
 
   // Init JS for widgets.
   _ding_nodelist_add_js(NL_WIDGET_HOR_ACCORDION, $conf['autoscroll_delay'], $conf['unique_id']);
-  $image_style = _ding_nodelist_init_image_style(NL_WIDGET_HOR_ACCORDION, $conf['region']);
+  $image_style = _ding_nodelist_init_image_style(NL_WIDGET_HOR_ACCORDION);
   $theme_func = '_ding_nodelist_widget_' . NL_WIDGET_HOR_ACCORDION;
   $block->content = theme($theme_func, array(
-      'items' => $nodes,
-      'template' => 'kultunaut_events.event.carousel',
-      'links' => '',
-      'conf' => array(
-        'title' => $title,
-        'classes' => implode(' ', $classes),
-        'image_style' => $image_style,
-        'sorting' => '',
-      ),
+    'items' => $nodes,
+    'template' => 'kultunaut_events.event.carousel',
+    'links' => '',
+    'conf' => array(
+      'title' => $title,
+      'classes' => implode(' ', $classes),
+      'image_style' => $image_style,
+      'sorting' => '',
     )
-  );
+  ));
 
   return $block;
 }
