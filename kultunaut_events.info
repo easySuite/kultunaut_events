@@ -6,4 +6,4 @@ version = 7.x-1.19
 project = kultunaut_events
 
 dependencies[] = ding_nodelist
-files[] = kultunaut_events.class.inc
+files[] = lib/kultunaut_events.class.inc
