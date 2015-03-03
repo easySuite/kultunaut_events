@@ -16,7 +16,7 @@ $plugin = array(
   'render callback' => 'kultunaut_events_content_type_render',
   'admin title' => 'Kultunaut events',
   'admin info' => 'kultunaut_events_content_type_admin_info',
-  'edit form' => 'kultunaut_events_content_type_edit_form'
+  'edit form' => 'kultunaut_events_content_type_edit_form',
 );
 
 /**
