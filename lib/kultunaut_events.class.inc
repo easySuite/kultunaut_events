@@ -18,7 +18,6 @@ class KultunautEvent {
   protected $category;
   protected $image;
   protected $url;
-
   protected $downloadHandler;
   protected $savedImage;
 

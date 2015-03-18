@@ -81,9 +81,8 @@ function kultunaut_events_theme() {
 function kultunaut_events_load($limit) {
   $return = array();
   // Fetch XML.
-  $data = file_get_contents(
-    variable_get('kultunaut_events_url', KULTUNAUT_EVENTS_DEFAULT_URL)
-  );
+  $data = file_get_contents(variable_get('kultunaut_events_url', KULTUNAUT_EVENTS_DEFAULT_URL));
+
   // Check if it is XML.
   // @todo Compare with a proper XML MIME type.
   $headers = implode("\r\n", $http_response_header);
@@ -96,11 +95,12 @@ function kultunaut_events_load($limit) {
     );
     return $return;
   }
-  $xml = simplexml_load_string($data);
 
+  $xml = simplexml_load_string($data);
   if (empty($xml->arrlist->arr)) {
     return $return;
   }
+
   foreach ($xml->arrlist->arr as $item) {
     $node = new KultunautEvent();
     $node->setImageDownloadHandler('kultunaut_events_fetch_image');
@@ -113,15 +113,6 @@ function kultunaut_events_load($limit) {
   }
 
   return $return;
-}
-
-/**
- * Implements hook_artesis_frontend_ipe_menu_alter().
- *
- * See artesis_frontend.module _artesis_frontend_get_allowed_plugins().
- */
-function kultunaut_events_artesis_frontend_ipe_menu_alter(&$menu) {
-  $menu['kultunaut_events'] = 'kultunaut_events';
 }
 
 /**
