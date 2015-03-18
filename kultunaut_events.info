@@ -1,7 +1,7 @@
-name = Kultunaut events
+name = KultuNaut events
 description = Events from kultunaut.dk
 core = 7.x
-package = Easyting Extra
+package = easyDDB
 version = 7.x-1.19
 project = kultunaut_events
 
