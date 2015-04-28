@@ -2,8 +2,7 @@ name = KultuNaut events
 description = Events from kultunaut.dk
 core = 7.x
 package = easyDDB
-version = 7.x-2.0.0
+version = 7.x-2.0.0+easy
 project = kultunaut_events
-
 dependencies[] = ding_nodelist
 files[] = lib/kultunaut_events.class.inc
