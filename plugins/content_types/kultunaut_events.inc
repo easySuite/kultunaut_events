@@ -148,7 +148,7 @@ function kultunaut_events_content_type_render($subtype, $conf, $args, $context) 
       'classes' => implode(' ', $classes),
       'image_style' => $image_style,
       'sorting' => '',
-    )
+    ),
   ));
 
   return $block;
