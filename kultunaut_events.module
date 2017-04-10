@@ -105,6 +105,7 @@ function kultunaut_events_load($limit) {
     $node = new KultunautEvent();
     $node->setImageDownloadHandler('kultunaut_events_fetch_image');
     $node->fromSimpleXMLElement($item);
+    $node->item_template = 'kultunaut_events.event.carousel';
     $return[] = $node;
     $limit--;
     if ($limit == 0) {
