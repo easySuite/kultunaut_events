@@ -9,7 +9,7 @@
  */
 $plugin = array(
   'title' => t('Kultunaut events'),
-  'category' => t('easyDDB'),
+  'category' => t('easyOPAC'),
   'description' => t('Show events from kultunaut.dk site'),
   'single' => TRUE,
   'content_types' => 'kultunaut_events_content_type',
